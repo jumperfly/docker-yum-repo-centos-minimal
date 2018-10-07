@@ -1,0 +1,20 @@
+services:
+  - docker
+
+script:
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker build . -t jumperfly/yum-repo-centos-minimal:git-${TRAVIS_COMMIT:0:7}
+    elif [ -n "$TRAVIS_TAG" ]; then
+      docker pull jumperfly/yum-repo-centos-minimal:git-${TRAVIS_COMMIT:0:7}
+      docker tag jumperfly/yum-repo-centos-minimal:git-${TRAVIS_COMMIT:0:7} jumperfly/yum-repo-centos-minimal:$TRAVIS_TAG
+    fi
+
+after_script:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker push jumperfly/yum-repo-centos-minimal:git-${TRAVIS_COMMIT:0:7}
+    elif [ -n "$TRAVIS_TAG" ];
+      then docker push jumperfly/yum-repo-centos-minimal:$TRAVIS_TAG
+    fi
